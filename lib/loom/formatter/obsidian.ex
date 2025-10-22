@@ -12,7 +12,7 @@ defmodule Loom.Formatter.Obsidian do
   """
 
   alias ExDoc.ModuleNode
-  alias Loom.Formatter.Obsidian.{Config, Renderer}
+  alias Loom.Formatter.Obsidian.{Config, Index, Renderer}
 
   @spec run([ModuleNode.t()], [ModuleNode.t()], ExDoc.Config.t()) :: String.t()
   def run(project_nodes, _filtered_modules, config) do
@@ -25,11 +25,13 @@ defmodule Loom.Formatter.Obsidian do
     File.rm_rf!(config.output_path)
     File.mkdir_p!(config.output_path)
 
-    Enum.each(modules, fn module ->
-      module
-      |> Renderer.render(config)
-      |> write_file(config)
-    end)
+    modules
+    |> Enum.map(&Renderer.render(&1, config))
+    |> Enum.each(&write_file(&1, config))
+
+    modules
+    |> Index.generate(config)
+    |> Enum.each(&write_file(&1, config))
 
     config.output_path
   end

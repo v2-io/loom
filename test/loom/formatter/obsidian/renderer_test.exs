@@ -15,7 +15,8 @@ defmodule Loom.Formatter.Obsidian.RendererTest do
           signature: "def start_link(opts)",
           specs: ["@spec start_link(keyword()) :: GenServer.on_start()"],
           source_doc: %{
-            "en" => "Initialises the process by calling `Sample.Other` and `start_link/1`."
+            "en" =>
+              "Initialises the process by calling `Sample.Other` and `start_link/1`.\n\n## TIP\nPrefer supervised invocations."
           }
         }
       ]
@@ -31,11 +32,19 @@ defmodule Loom.Formatter.Obsidian.RendererTest do
       struct(ModuleNode,
         module: Sample.Example,
         title: "Sample.Example",
-        source_doc: %{"en" => "Module overview referencing `Sample.Other`."},
+        source_doc: %{
+          "en" =>
+            "Module overview referencing `Sample.Other`.\n\n## WARNING\nNever bypass the supervision tree."
+        },
         docs_groups: groups,
         annotations: [:stable],
         group: :runtime,
-        metadata: %{source_path: "lib/sample/example.ex"},
+        metadata: %{
+          source_path: "lib/sample/example.ex",
+          mermaid: [
+            %{title: "Lifecycle States", code: "graph TD; A-->B"}
+          ]
+        },
         moduledoc_file: "lib/sample/example.ex"
       )
 
@@ -54,5 +63,9 @@ defmodule Loom.Formatter.Obsidian.RendererTest do
     assert contents =~ "[[#start_link/1]]"
     assert contents =~ "### start_link/1"
     assert contents =~ "```elixir"
+    assert contents =~ "> [!warning]"
+    assert contents =~ "> [!tip]"
+    assert contents =~ "## Lifecycle States"
+    assert contents =~ "```mermaid\ngraph TD; A-->B\n```"
   end
 end

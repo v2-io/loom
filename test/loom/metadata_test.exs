@@ -21,6 +21,7 @@ defmodule Loom.MetadataTest do
     assert frontmatter =~ "type: module"
     assert frontmatter =~ "module: Sample.Module"
     assert frontmatter =~ "category: runtime"
+    assert frontmatter =~ "status: stable"
     assert frontmatter =~ "tags:\n  - stable"
     assert frontmatter =~ "source: lib/sample/module.ex"
     assert frontmatter =~ "created: 2025-10-22"

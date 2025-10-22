@@ -20,11 +20,14 @@ Documentation as a **living knowledge base** that:
 
 ## Status
 
+
 🚧 **Pre-alpha** - Initial research and design phase
 
 See:
-- [`thoughts.md`](thoughts.md) - Research findings and architectural thinking
-- [`obsidian-flavored-markdown.md`](obsidian-flavored-markdown.md) - Technical specification
+
+- [[refs/thoughts.md]] - Research findings and architectural thinking
+- [[refs/obsidian-flavored-markdown.md]] - Technical specification
+- (See refs/*.md for more initial planning and documentation)
 
 ## Roadmap
 
@@ -36,10 +39,10 @@ See:
 - [ ] File structure (mirrors module hierarchy)
 
 ### Phase 2: Obsidian Enhancements (Week 2)
-- [ ] Callout conversion (warnings, examples, deprecations)
-- [ ] Mermaid diagram generation (supervision trees)
-- [ ] Dataview index generation
-- [ ] Tag hierarchy normalization
+- [x] Callout conversion (warnings, examples, deprecations)
+- [x] Mermaid diagram generation (supervision trees)
+- [x] Dataview index generation
+- [x] Tag hierarchy normalization
 
 ### Phase 3: Multi-Source Integration (Week 3)
 - [ ] PRAXES importer
@@ -63,6 +66,34 @@ mix loom.import.praxes ~/eli/_shared/PRAXES --vault ~/vaults/my-project
 # Generate indices
 mix loom.index --vault ~/vaults/my-project
 ```
+
+### Development Formatter
+
+While Phase 1 is in progress you can already experiment with the Obsidian formatter by updating your `mix.exs`:
+
+```elixir
+def project do
+  [
+    docs: [
+      output: "vault",
+      formatters: ["html", Loom.Formatter.Obsidian],
+      obsidian: [
+        vault_name: "My Project API"
+      ]
+    ]
+  ]
+end
+```
+
+Running `mix docs` will now generate HTML as usual and additionally materialise Obsidian-flavoured markdown under `vault/` following the module hierarchy rules captured in `refs/obsidian-flavored-markdown.md`.
+
+Phase 2 enhancements are active by default:
+
+- Callouts expressed as `## WARNING`, `## NOTE`, etc. become Obsidian `[!warning]`/`[!note]` blocks.
+- Inline module/function references wrapped in backticks are rewritten as wikilinks.
+- Modules that provide `:mermaid`/`:loom_diagrams` metadata (title + code) get rendered Mermaid fences.
+- A generated `indexes/module-index.md` file contains Dataview tables/lists to navigate modules.
+- Tags from annotations/module metadata are normalised into hierarchical identifiers such as `elixir/otp/genserver`.
 
 ## Installation
 

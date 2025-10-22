@@ -2,8 +2,7 @@ defmodule Loom.Formatter.Obsidian.Renderer do
   @moduledoc false
 
   alias Loom.Formatter.Obsidian.Config
-  alias Loom.Metadata
-  alias Loom.Wikilinks
+  alias Loom.{Markdown, Metadata}
   alias ExDoc.{DocGroupNode, DocNode, ModuleNode}
 
   @doc """
@@ -43,7 +42,8 @@ defmodule Loom.Formatter.Obsidian.Renderer do
     body_sections = [
       module_title(node),
       moduledoc(node),
-      docs_groups(node)
+      docs_groups(node),
+      diagram_sections(node)
     ]
 
     body_sections
@@ -164,14 +164,96 @@ defmodule Loom.Formatter.Obsidian.Renderer do
   defp normalize_markdown(nil), do: ""
 
   defp normalize_markdown(%{"en" => doc}) when is_binary(doc) do
-    doc
-    |> String.trim()
-    |> Wikilinks.convert()
+    Markdown.normalize(doc)
   end
 
   defp normalize_markdown(doc) when is_binary(doc) do
-    doc
-    |> String.trim()
-    |> Wikilinks.convert()
+    Markdown.normalize(doc)
+  end
+
+  defp normalize_markdown(_), do: ""
+
+  defp diagram_sections(%ModuleNode{} = node) do
+    node
+    |> module_diagrams()
+    |> Enum.map(&render_diagram/1)
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.join("\n\n")
+  end
+
+  defp module_diagrams(%ModuleNode{metadata: metadata}) when is_map(metadata) do
+    keys = [:loom_diagrams, :mermaid, :diagrams, "loom_diagrams", "mermaid", "diagrams"]
+
+    keys
+    |> Enum.flat_map(fn key ->
+      metadata
+      |> Map.get(key)
+      |> diagrams_from_value()
+    end)
+    |> Enum.reject(&(&1 == %{}))
+    |> Enum.uniq_by(&{Map.get(&1, :title), Map.get(&1, :code)})
+  end
+
+  defp module_diagrams(_), do: []
+
+  defp diagrams_from_value(nil), do: []
+  defp diagrams_from_value(list) when is_list(list), do: Enum.map(list, &normalize_diagram/1)
+  defp diagrams_from_value(value), do: [normalize_diagram(value)]
+
+  defp normalize_diagram(%{code: code} = diagram) when is_binary(code) do
+    %{
+      title: Map.get(diagram, :title) || Map.get(diagram, "title") || "Diagram",
+      code: String.trim(code),
+      type: Map.get(diagram, :type) || Map.get(diagram, "type") || :mermaid,
+      description: Map.get(diagram, :description) || Map.get(diagram, "description")
+    }
+  end
+
+  defp normalize_diagram(%{diagram: code} = diagram) when is_binary(code) do
+    normalize_diagram(Map.put(diagram, :code, code))
+  end
+
+  defp normalize_diagram(code) when is_binary(code) do
+    %{
+      title: "Diagram",
+      code: String.trim(code),
+      type: :mermaid
+    }
+  end
+
+  defp normalize_diagram(_), do: %{}
+
+  defp render_diagram(%{code: code} = diagram) when is_binary(code) and code != "" do
+    case normalize_diagram_type(Map.get(diagram, :type)) do
+      :mermaid -> render_mermaid_diagram(diagram)
+      _ -> ""
+    end
+  end
+
+  defp render_diagram(_), do: ""
+
+  defp render_mermaid_diagram(%{title: title, code: code, description: description}) do
+    sections = [
+      diagram_heading(title),
+      maybe_description(description),
+      "```mermaid\n#{code}\n```"
+    ]
+
+    sections
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.join("\n\n")
+  end
+
+  defp normalize_diagram_type(type) when type in [:mermaid, "mermaid"], do: :mermaid
+  defp normalize_diagram_type(_), do: :unknown
+
+  defp diagram_heading(nil), do: "## Diagram"
+  defp diagram_heading(title) when is_binary(title), do: "## #{title}"
+
+  defp maybe_description(nil), do: ""
+
+  defp maybe_description(text) when is_binary(text) do
+    text
+    |> Markdown.normalize()
   end
 end

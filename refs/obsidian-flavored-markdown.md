@@ -14,8 +14,8 @@
 **Required fields:**
 ```yaml
 ---
-title: Document Title          # Human-readable name
-type: module | function | type | praxis | architecture | transcript
+title: Document Title          # Human-readable name -- ideally similar to filename except when there are conflicts
+type: module | function | type | praxis | architecture | transcript | ...
 created: 2025-10-21           # ISO 8601 date
 modified: 2025-10-21          # ISO 8601 date
 ---
@@ -68,7 +68,7 @@ As noted in [[Architecture#^core-principle]]
 
 **Embedding:**
 ```markdown
-![[Supervision Tree Diagram]]  # Embeds entire document
+![[Supervision Tree Diagram]]  # Embeds entire document -- equivalent to import when read with certain tools
 ```
 
 ### 3. Tags
@@ -124,15 +124,16 @@ tags:
 - `[!example]` - Code example
 - `[!quote]` - Citation
 
-**Custom types (for Loom):**
+**Common Custom types:**
 - `[!praxis]` - Reusable pattern
-- `[!architecture]` - Architectural decision
-- `[!temporal-coherence]` - TST-related note
-- `[!mission-critical]` - Core principle
+- `[!decision]` - Architectural decision (etc.)
+- `[!mission-critical]` - Core principle / insight / summary
+- `[!open-question]` - Open question
 
 ### 5. Code Blocks
 
 **Elixir with syntax highlighting:**
+
 ````markdown
 ```elixir
 defmodule Example do
