@@ -2,7 +2,7 @@ defmodule LoomTest do
   use ExUnit.Case
   doctest Loom
 
-  test "greets the world" do
-    assert Loom.hello() == :world
+  test "returns the current version" do
+    assert Loom.version() == "0.1.0"
   end
 end
