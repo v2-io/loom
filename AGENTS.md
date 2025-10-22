@@ -91,7 +91,7 @@ Phase 2 enhancements are active by default:
 
 - Callouts expressed as `## WARNING`, `## NOTE`, etc. become Obsidian `[!warning]`/`[!note]` blocks.
 - Inline module/function references wrapped in backticks are rewritten as wikilinks.
-- Modules that provide `:mermaid`/`:loom_diagrams` metadata (title + code) get rendered Mermaid fences.
+- Modules that provide `@moduledoc loom_diagrams: [...]` metadata (title + code) get rendered Mermaid fences.
 - A generated `indexes/module-index.md` file contains Dataview tables/lists to navigate modules.
 - Tags from annotations/module metadata are normalised into hierarchical identifiers such as `elixir/otp/genserver`.
 

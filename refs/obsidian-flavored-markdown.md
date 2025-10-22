@@ -175,6 +175,8 @@ graph TD
 ```
 ````
 
+> Tip: emit diagrams directly from Elixir by annotating modules with `@moduledoc loom_diagrams: [%{title: "Lifecycle", code: "graph TD; ..."}]`. Loom will surface these snippets as Mermaid fences in the generated docs.
+
 **State diagram:**
 ````markdown
 ```mermaid
