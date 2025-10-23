@@ -161,12 +161,19 @@ defmodule Loom.Metadata do
     "#{key}: #{value}"
   end
 
-  defp serialize({key, list}) when is_list(list) do
-    serialized_items =
-      list
-      |> Enum.map(&"  - #{&1}")
-      |> Enum.join("\n")
+  # Handle charlist (list of integers) - convert to string
+  defp serialize({key, value}) when is_list(value) do
+    if :io_lib.printable_list(value) do
+      # It's a charlist, convert to string
+      "#{key}: #{to_string(value)}"
+    else
+      # It's a real list, serialize as YAML list
+      serialized_items =
+        value
+        |> Enum.map(&"  - #{&1}")
+        |> Enum.join("\n")
 
-    "#{key}:\n#{serialized_items}"
+      "#{key}:\n#{serialized_items}"
+    end
   end
 end

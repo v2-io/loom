@@ -31,7 +31,9 @@ defmodule Loom.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.34", only: [:dev, :test], runtime: false}
+      # ex_doc must be available at compile time (not runtime) for formatter integration
+      # Remove `only: [:dev, :test]` so it's available when Loom is used as dependency
+      {:ex_doc, "~> 0.34", runtime: false}
     ]
   end
 
